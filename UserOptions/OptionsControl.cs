@@ -13,23 +13,21 @@ namespace UserOptions
 
         internal OptionPageCustom DefaultCrmSdkVersion;
         internal OptionPageCustom DefaultProjectKeyFileName;
-        internal OptionPageCustom AllowPublishManagedWebResources;
-        internal OptionPageCustom AllowPublishManagedReports;
         internal OptionPageCustom UseDefaultWebBrowser;
         internal OptionPageCustom EnableCrmSdkSearch;
-        internal OptionPageCustom RegistraionToolPath;
+        internal OptionPageCustom EnableXrmLogging;
+        internal OptionPageCustom XrmLogPath;
 
         public void Initialize()
         {
             DefaultSdkVersion.SelectedIndex = DefaultSdkVersion.FindStringExact(!string.IsNullOrEmpty(DefaultCrmSdkVersion.DefaultCrmSdkVersion)
                                                   ? DefaultCrmSdkVersion.DefaultCrmSdkVersion
-                                                  : "CRM 2015 (7.1.X)");
+                                                  : "CRM 2016 (8.2.X)");
             DefaultKeyFileName.Text = DefaultProjectKeyFileName.DefaultProjectKeyFileName;
-            AllowPublishManaged.Checked = AllowPublishManagedWebResources.AllowPublishManagedWebResources;
-            AllowPublishManagedRpts.Checked = AllowPublishManagedReports.AllowPublishManagedReports;
             DefaultWebBrowser.Checked = UseDefaultWebBrowser.UseDefaultWebBrowser;
             EnableSdkSearch.Checked = EnableCrmSdkSearch.EnableCrmSdkSearch;
-            PrtName.Text = RegistraionToolPath.RegistrationToolPath;
+            EnableLogging.Checked = EnableXrmLogging.EnableXrmToolingLogging;
+            LogPath.Text = XrmLogPath.XrmToolingLogPath;
         }
 
         private void DefaultSdkVersion_SelectedIndexChanged(object sender, EventArgs e)
@@ -69,14 +67,9 @@ namespace UserOptions
 
         private void HandleIllegalFileName()
         {
-            MessageBox.Show("Illegal file name");
+            MessageBox.Show(@"Folder does not exist or unable to access");
             DefaultProjectKeyFileName.DefaultProjectKeyFileName = "MyKey";
-            DefaultKeyFileName.Text = "MyKey";
-        }
-
-        private void AllowPublishManaged_CheckedChanged(object sender, EventArgs e)
-        {
-            AllowPublishManagedWebResources.AllowPublishManagedWebResources = AllowPublishManaged.Checked;
+            DefaultKeyFileName.Text = @"MyKey";
         }
 
         private void DefaultWebBrowser_CheckedChanged(object sender, EventArgs e)
@@ -89,28 +82,31 @@ namespace UserOptions
             EnableCrmSdkSearch.EnableCrmSdkSearch = EnableSdkSearch.Checked;
         }
 
-        private void AllowPublishManagedRpts_CheckedChanged(object sender, EventArgs e)
+        private void EnableLogging_CheckedChanged(object sender, EventArgs e)
         {
-            AllowPublishManagedReports.AllowPublishManagedReports = AllowPublishManagedRpts.Checked;
+            EnableXrmLogging.EnableXrmToolingLogging = EnableLogging.Checked;
         }
 
-        private void PrtName_TextChanged(object sender, EventArgs e)
+        private void OpenFolder_Click(object sender, EventArgs e)
         {
-            string path = PrtName.Text.Trim();
+            DialogResult result = folderBrowserDialog.ShowDialog();
+            if (result != DialogResult.OK)
+                return;
+
+            string path = folderBrowserDialog.SelectedPath;
 
             if (string.IsNullOrEmpty(path))
             {
-                RegistraionToolPath.RegistrationToolPath = null;
+                XrmLogPath.XrmToolingLogPath = null;
+                LogPath.Text = null;
                 return;
             }
 
-            if (path.EndsWith(".exe", StringComparison.CurrentCultureIgnoreCase))
-                path = Path.GetDirectoryName(path);
-
-            if (path != null && !path.EndsWith("\\"))
+            if (!path.EndsWith("\\"))
                 path += "\\";
 
-            RegistraionToolPath.RegistrationToolPath = path;
+            XrmLogPath.XrmToolingLogPath = path;
+            LogPath.Text = path;
         }
     }
 }

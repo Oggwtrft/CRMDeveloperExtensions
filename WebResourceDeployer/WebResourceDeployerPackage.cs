@@ -1,10 +1,11 @@
-﻿using EnvDTE;
+﻿using CommonResources;
+using CommonResources.Models;
+using EnvDTE;
 using Microsoft.Crm.Sdk.Messages;
 using Microsoft.VisualStudio.Shell;
-using Microsoft.Xrm.Client;
-using Microsoft.Xrm.Client.Services;
 using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Messages;
+using Microsoft.Xrm.Tooling.Connector;
 using OutputLogger;
 using System;
 using System.ComponentModel.Design;
@@ -14,7 +15,6 @@ using System.ServiceModel;
 using System.Text;
 using System.Windows;
 using System.Xml;
-using WebResourceDeployer.Models;
 using Window = EnvDTE.Window;
 
 namespace WebResourceDeployer
@@ -27,6 +27,7 @@ namespace WebResourceDeployer
     {
         private DTE _dte;
         private Logger _logger;
+        private const string WindowType = "WebResourceDeployer";
 
         protected override void Initialize()
         {
@@ -84,7 +85,7 @@ namespace WebResourceDeployer
             SelectedItem item = _dte.SelectedItems.Item(1);
             ProjectItem projectItem = item.ProjectItem;
 
-            CrmConn selectedConnection = GetSelectedConnection(projectItem);
+            CrmConn selectedConnection = (CrmConn)SharedGlobals.GetGlobal("SelectedConnection", _dte);
             if (selectedConnection == null)
             {
                 menuCommand.Visible = false;
@@ -119,23 +120,23 @@ namespace WebResourceDeployer
                 solutionBuild.BuildProject(_dte.Solution.SolutionBuild.ActiveConfiguration.Name, projectItem.ContainingProject.UniqueName, true);
             }
 
-            CrmConn selectedConnection = GetSelectedConnection(projectItem);
+            CrmConn selectedConnection = (CrmConn)SharedGlobals.GetGlobal("SelectedConnection", _dte);
             if (selectedConnection == null) return;
 
             Guid webResourceId = GetMapping(projectItem, selectedConnection);
             if (webResourceId == Guid.Empty) return;
 
-            CrmConnection connection = CrmConnection.Parse(selectedConnection.ConnectionString);
+            CrmServiceClient client = SharedConnection.GetCurrentConnection(selectedConnection.ConnectionString, WindowType, _dte);
 
             //Check if < CRM 2011 UR12 (ExecuteMutliple)
             Version version = Version.Parse(selectedConnection.Version);
             if (version.Major == 5 && version.Revision < 3200)
-                UpdateAndPublishSingle(connection, projectItem, webResourceId);
+                UpdateAndPublishSingle(client, projectItem, webResourceId);
             else
-                UpdateAndPublishMultiple(connection, projectItem, webResourceId);
+                UpdateAndPublishMultiple(client, projectItem, webResourceId);
         }
 
-        private void UpdateAndPublishMultiple(CrmConnection connection, ProjectItem projectItem, Guid webResourceId)
+        private void UpdateAndPublishMultiple(CrmServiceClient client, ProjectItem projectItem, Guid webResourceId)
         {
             try
             {
@@ -170,29 +171,26 @@ namespace WebResourceDeployer
                 requests.Add(pubRequest);
                 emRequest.Requests = requests;
 
-                using (OrganizationService orgService = new OrganizationService(connection))
+                _dte.StatusBar.Text = "Updating & publishing web resource...";
+                _dte.StatusBar.Animate(true, vsStatusAnimation.vsStatusAnimationDeploy);
+
+                ExecuteMultipleResponse emResponse = (ExecuteMultipleResponse)client.Execute(emRequest);
+
+                bool wasError = false;
+                foreach (var responseItem in emResponse.Responses)
                 {
-                    _dte.StatusBar.Text = "Updating & publishing web resource...";
-                    _dte.StatusBar.Animate(true, vsStatusAnimation.vsStatusAnimationDeploy);
+                    if (responseItem.Fault == null) continue;
 
-                    ExecuteMultipleResponse emResponse = (ExecuteMultipleResponse)orgService.Execute(emRequest);
-
-                    bool wasError = false;
-                    foreach (var responseItem in emResponse.Responses)
-                    {
-                        if (responseItem.Fault == null) continue;
-
-                        _logger.WriteToOutputWindow(
-                            "Error Updating And Publishing Web Resources To CRM: " + responseItem.Fault.Message + Environment.NewLine + responseItem.Fault.TraceText,
-                            Logger.MessageType.Error);
-                        wasError = true;
-                    }
-
-                    if (wasError)
-                        MessageBox.Show("Error Updating And Publishing Web Resources To CRM. See the Output Window for additional details.");
-                    else
-                        _logger.WriteToOutputWindow("Updated And Published Web Resource", Logger.MessageType.Info);
+                    _logger.WriteToOutputWindow(
+                        "Error Updating And Publishing Web Resources To CRM: " + responseItem.Fault.Message + Environment.NewLine + responseItem.Fault.TraceText,
+                        Logger.MessageType.Error);
+                    wasError = true;
                 }
+
+                if (wasError)
+                    MessageBox.Show("Error Updating And Publishing Web Resources To CRM. See the Output Window for additional details.");
+                else
+                    _logger.WriteToOutputWindow("Updated And Published Web Resource", Logger.MessageType.Info);
             }
             catch (FaultException<OrganizationServiceFault> crmEx)
             {
@@ -207,36 +205,32 @@ namespace WebResourceDeployer
             _dte.StatusBar.Animate(false, vsStatusAnimation.vsStatusAnimationDeploy);
         }
 
-        private void UpdateAndPublishSingle(CrmConnection connection, ProjectItem projectItem, Guid webResourceId)
+        private void UpdateAndPublishSingle(CrmServiceClient client, ProjectItem projectItem, Guid webResourceId)
         {
             try
             {
                 _dte.StatusBar.Text = "Updating & publishing web resource...";
                 _dte.StatusBar.Animate(true, vsStatusAnimation.vsStatusAnimationDeploy);
+                string publishXml = "<importexportxml><webresources>";
+                Entity webResource = new Entity("webresource") { Id = webResourceId };
 
-                using (OrganizationService orgService = new OrganizationService(connection))
-                {
-                    string publishXml = "<importexportxml><webresources>";
-                    Entity webResource = new Entity("webresource") { Id = webResourceId };
+                string extension = Path.GetExtension(projectItem.FileNames[1]);
+                string content = extension != null && (extension.ToUpper() != ".TS")
+                    ? File.ReadAllText(projectItem.FileNames[1])
+                    : File.ReadAllText(Path.ChangeExtension(projectItem.FileNames[1], ".js"));
+                webResource["content"] = EncodeString(content);
 
-                    string extension = Path.GetExtension(projectItem.FileNames[1]);
-                    string content = extension != null && (extension.ToUpper() != ".TS")
-                        ? File.ReadAllText(projectItem.FileNames[1])
-                        : File.ReadAllText(Path.ChangeExtension(projectItem.FileNames[1], ".js"));
-                    webResource["content"] = EncodeString(content);
+                UpdateRequest request = new UpdateRequest { Target = webResource };
+                client.Execute(request);
+                _logger.WriteToOutputWindow("Uploaded Web Resource", Logger.MessageType.Info);
 
-                    UpdateRequest request = new UpdateRequest { Target = webResource };
-                    orgService.Execute(request);
-                    _logger.WriteToOutputWindow("Uploaded Web Resource", Logger.MessageType.Info);
+                publishXml += "<webresource>{" + webResource.Id + "}</webresource>";
+                publishXml += "</webresources></importexportxml>";
 
-                    publishXml += "<webresource>{" + webResource.Id + "}</webresource>";
-                    publishXml += "</webresources></importexportxml>";
+                PublishXmlRequest pubRequest = new PublishXmlRequest { ParameterXml = publishXml };
 
-                    PublishXmlRequest pubRequest = new PublishXmlRequest { ParameterXml = publishXml };
-
-                    orgService.Execute(pubRequest);
-                    _logger.WriteToOutputWindow("Published Web Resource", Logger.MessageType.Info);
-                }
+                client.Execute(pubRequest);
+                _logger.WriteToOutputWindow("Published Web Resource", Logger.MessageType.Info);
             }
             catch (FaultException<OrganizationServiceFault> crmEx)
             {
@@ -249,54 +243,6 @@ namespace WebResourceDeployer
 
             _dte.StatusBar.Clear();
             _dte.StatusBar.Animate(false, vsStatusAnimation.vsStatusAnimationDeploy);
-        }
-
-        private CrmConn GetSelectedConnection(ProjectItem projectItem)
-        {
-            CrmConn selectedConnection = new CrmConn();
-            Project project = projectItem.ContainingProject;
-            var projectPath = Path.GetDirectoryName(project.FullName);
-            if (projectPath == null) return selectedConnection;
-
-            var path = Path.GetDirectoryName(project.FullName);
-            if (!ConfigFileExists(project)) return null;
-
-            XmlDocument doc = new XmlDocument();
-            doc.Load(path + "\\CRMDeveloperExtensions.config");
-
-            XmlNodeList connections = doc.GetElementsByTagName("Connection");
-            if (connections.Count == 0) return selectedConnection;
-
-            //Get the selected Connection info
-            foreach (XmlNode node in connections)
-            {
-                XmlNode selectedNode = node["Selected"];
-                if (selectedNode == null) continue;
-
-                bool selected;
-                bool isBool = Boolean.TryParse(selectedNode.InnerText, out selected);
-                if (!isBool) continue;
-                if (!selected) continue;
-
-                XmlNode connectionStringNode = node["ConnectionString"];
-                if (connectionStringNode == null) continue;
-
-                selectedConnection.ConnectionString = DecodeString(connectionStringNode.InnerText);
-
-                XmlNode orgIdNode = node["OrgId"];
-                if (orgIdNode == null) continue;
-
-                selectedConnection.OrgId = orgIdNode.InnerText;
-
-                XmlNode vesionNode = node["Version"];
-                if (vesionNode == null) continue;
-
-                selectedConnection.Version = vesionNode.InnerText;
-
-                break;
-            }
-
-            return selectedConnection;
         }
 
         private Guid GetMapping(ProjectItem projectItem, CrmConn selectedConnection)
@@ -311,7 +257,7 @@ namespace WebResourceDeployer
                 if (!File.Exists(projectItem.FileNames[1])) return Guid.Empty;
 
                 var path = Path.GetDirectoryName(project.FullName);
-                if (!ConfigFileExists(project))
+                if (!SharedConfigFile.ConfigFileExists(project))
                 {
                     _logger.WriteToOutputWindow("Error Getting Mapping: Missing CRMDeveloperExtensions.config File", Logger.MessageType.Error);
                     return Guid.Empty;
@@ -323,7 +269,7 @@ namespace WebResourceDeployer
                 if (string.IsNullOrEmpty(selectedConnection.ConnectionString)) return Guid.Empty;
                 if (string.IsNullOrEmpty(selectedConnection.OrgId)) return Guid.Empty;
 
-                var props = _dte.Properties["CRM Developer Extensions", "Settings"];
+                var props = _dte.Properties["CRM Developer Extensions", "Web Resource Deployer"];
                 bool allowPublish = (bool)props.Item("AllowPublishManagedWebResources").Value;
 
                 //Get the mapped file info
@@ -365,21 +311,9 @@ namespace WebResourceDeployer
             }
         }
 
-        private string DecodeString(string value)
-        {
-            byte[] data = Convert.FromBase64String(value);
-            return Encoding.UTF8.GetString(data);
-        }
-
         private string EncodeString(string value)
         {
             return Convert.ToBase64String(Encoding.UTF8.GetBytes(value));
-        }
-
-        private bool ConfigFileExists(Project project)
-        {
-            var path = Path.GetDirectoryName(project.FullName);
-            return File.Exists(path + "/CRMDeveloperExtensions.config");
         }
     }
 }

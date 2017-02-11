@@ -23,6 +23,7 @@
     <IsWebBootstrapper>false</IsWebBootstrapper>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup>
     <SignAssembly>true</SignAssembly>
@@ -41,7 +42,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>CRMDeveloperExtensions</RootNamespace>
     <AssemblyName>CRMDeveloperExtensions</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <!-- <GeneratePkgDefFile>false</GeneratePkgDefFile>
     <IncludeAssemblyInVSIXContainer>false</IncludeAssemblyInVSIXContainer>
     <IncludeDebugSymbolsInVSIXContainer>false</IncludeDebugSymbolsInVSIXContainer>
@@ -105,6 +106,53 @@
     <None Include="Snippets\CSharp\Dynamics CRM\CRMPluginUnitTest.snippet" />
     <None Include="Snippets\CSharp\Dynamics CRM\CRMWorkflowOutputParameter.snippet" />
     <None Include="Snippets\CSharp\Dynamics CRM\CRMWorkflowInputParameter.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Controls\AddNotification.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\ExecObj\GetContext.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\ExecObj\GetDepth.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\ExecObj\GetEventSource.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\ExecObj\SetSharedVariable.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\ExecObj\GetSharedVariable.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\ExecObj\GetFormContext.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Mobile\CreateOfflineRecord.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Mobile\DeleteOfflineRecord.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Mobile\RetrieveMultipleOfflineRecord.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Mobile\RetrieveOfflineRecord.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Mobile\UpdateOfflineRecord.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Mobile\IsOfflineEnabled.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Panel\LoadPanel.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Process\GetInstanceId.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Process\SetStatus.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Process\GetStatus.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Process\GetInstanceName.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Process\RemoveOnProcessStatusChange.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Process\AddOnProcessStatusChange.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Process\SetActiveProcessInstance.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Process\GetProcessInstances.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\UI\ForEachQuickFormControls.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\UI\QuickFormRefresh.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\UI\QuickFormIsLoaded.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\UI\QuickFormSetLabel.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\UI\QuickFormGetLabel.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\UI\QuickFormGetVisible.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\UI\QuickFormGetParent.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\UI\QuickFormGetName.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\UI\QuickFormGetControlType.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\UI\QuickFormGetControl.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\UI\QuickFormControls.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Utility\GetBarcodeValue.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Utility\GetCurrentPosition.snippet" />
+    <None Include="Snippets\XML\Dynamics CRM\CRMConnStringOnPremIfd.snippet">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Snippets\XML\Dynamics CRM\CRMConnStringOnPremWin.snippet">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Snippets\XML\Dynamics CRM\CRMConnStringOnPremCreds.snippet">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Snippets\XML\Dynamics CRM\CRMConnStringOl.snippet">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Snippets\JavaScript\Dynamics CRM\Attribute\FireOnChange.snippet" />
     <None Include="Snippets\JavaScript\Dynamics CRM\Attribute\GetIsPartyList.snippet" />
     <None Include="Snippets\JavaScript\Dynamics CRM\Attribute\GetSubmitMode.snippet" />
@@ -128,57 +176,77 @@
     <None Include="Snippets\JavaScript\Dynamics CRM\Attribute\GetFormat.snippet" />
     <None Include="Snippets\JavaScript\Dynamics CRM\Attribute\GetAttributeType.snippet" />
     <None Include="Snippets\JavaScript\Dynamics CRM\Attribute\GetIsDirty.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\BPF\RemoveOnStageSelected.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\BPF\AddOnStageSelected.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\BPF\RemoveOnStageChange.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\BPF\AddOnStageChange.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\BPF\GetVisible.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\BPF\GetActiveStage.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\BPF\GetActiveProcess.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\BPF\SetActiveStage.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\BPF\SetVisible.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\BPF\GetDisplayState.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\BPF\SetDisplayState.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Collection\ForEachSectionsControls.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Collection\GetSectionControls.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Section\SetVisible.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Section\GetVisible.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Section\SetLabel.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Section\GetLabel.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Section\GetParent.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Section\GetName.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Stage\GetSteps.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Stage\GetStatus.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Stage\GetName.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Stage\GetId.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Stage\GetEntityName.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Stage\GetCategory.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Step\GetName.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Step\GetAttribute.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Step\IsRequired.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\BPF\GetActivePath.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\BPF\MovePrevious.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\BPF\MoveNext.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\BPF\GetEnabledProcesses.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\BPF\SetActiveProcess.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Collection\ForEachSections.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Collection\ForEachTabs.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Collection\ForEachFormSelectors.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Collection\ForEachNavigationItems.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Collection\ForEachAttributes.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Collection\ForEachControls.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Collection\GetSections.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Collection\GetSectionsCount.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Collection\GetTabsCount.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Collection\GetTabs.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Collection\GetFormSelectors.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Collection\GetFormSelectorsCount.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Collection\GetNavigationItemsCount.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Collection\GetNavigationItems.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Collection\GetAttributes.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Collection\GetAttributesCount.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Collection\GetControlsCount.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Collection\GetControls.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Process\GetSelectedStage.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Process\RemoveOnStageSelected.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Process\AddOnStageSelected.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Process\RemoveOnStageChange.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Process\AddOnStageChange.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Process\GetVisible.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Process\GetActiveStage.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Process\GetActiveProcess.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Process\SetActiveStage.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Process\SetVisible.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Process\GetDisplayState.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Process\SetDisplayState.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Tabs\ForEachSectionsControls.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Tabs\GetSectionControls.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Controls\FireOnKeyPress.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Controls\RemoveOnKeyPress.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Controls\HideAutoComplete.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Controls\AddOnKeyPress.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Controls\ShowAutoComplete.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Controls\GetTotalResultCount.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Controls\OpenSearchResult.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Controls\RemoveOnPostSearch.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Controls\AddOnPostSearch.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Navigation\SetVisible.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Navigation\GetVisible.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Navigation\SetFocus.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Navigation\SetLabel.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Navigation\GetLabel.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Navigation\GetId.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Process\GetStages.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Process\IsRendered.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Process\GetName.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Process\GetId.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Tabs\SetSectionVisible.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Tabs\GetSectionVisible.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Tabs\SetSectionLabel.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Tabs\GetSectionLabel.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Tabs\GetSectionParent.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Tabs\GetSectionName.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Process\GetStageSteps.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Process\GetStageStatus.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Process\GetStageName.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Process\GetStageId.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Process\GetEntityName.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Process\GetCategory.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Process\GetStepName.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Process\GetStepAttribute.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Process\IsStepRequired.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Process\GetActivePath.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Process\MovePrevious.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Process\MoveNext.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Process\GetEnabledProcesses.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Process\SetActiveProcess.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Tabs\ForEachSections.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Tabs\ForEachTabs.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\FormSelector\ForEachFormSelectors.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Navigation\ForEachNavigationItems.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Entity\ForEachAttributes.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Controls\ForEachControls.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Tabs\GetSections.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Tabs\GetSectionsCount.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Tabs\GetTabsCount.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Tabs\GetTabs.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\FormSelector\GetFormSelectors.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\FormSelector\GetFormSelectorsCount.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Navigation\GetNavigationItemsCount.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Navigation\GetNavigationItems.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Entity\GetAttributes.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Entity\GetAttributesCount.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Controls\GetControlsCount.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Controls\GetControls.snippet" />
     <None Include="Snippets\JavaScript\Dynamics CRM\Context\GetIsAutoSaveEnabled.snippet" />
     <None Include="Snippets\JavaScript\Dynamics CRM\Context\GetFormFactor.snippet" />
     <None Include="Snippets\JavaScript\Dynamics CRM\Context\GetClientState.snippet" />
@@ -196,88 +264,89 @@
     <None Include="Snippets\JavaScript\Dynamics CRM\Context\GetOrgLcid.snippet" />
     <None Include="Snippets\JavaScript\Dynamics CRM\Context\GetCurrentTheme.snippet" />
     <None Include="Snippets\JavaScript\Dynamics CRM\Context\GetClientUrl.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Control\AddCustomFilter.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Control\AddCustomView.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Control\RemovePreSearch.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Control\AddPreSearch.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Control\ClearNotification.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Control\SetNotification.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Control\GetShowTime.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Control\SetShowTime.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Control\SetVisible.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Control\SetSrc.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Control\SetLabel.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Control\SetFocus.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Control\SetDisabled.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Control\SetDefaultView.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Control\GetInitialUrl.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Control\GetObject.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Control\SetData.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Control\RemoveOption.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Parature KB\AddOnSelection.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Parature KB\SetSearchQuery.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Parature KB\GetSelectedResult.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Parature KB\GetSearchQuery.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Parature KB\RemoveOnSelection.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Parature KB\RemoveOnResultOpened.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Parature KB\AddOnResultOpened.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Parature KB\GetParatureControl.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Save\PreventDefault.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Save\IsDefaultPrevented.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Save\GetSaveMode.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Subgrid\GetGridControl.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Subgrid\SetGridCurrentView.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Subgrid\GetRowEntityPrimaryAttributeValue.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Subgrid\GetRowEntityId.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Subgrid\GetRowEntityReference.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Subgrid\GetRowEntityName.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Subgrid\GetRowEntity.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Subgrid\GetRowData.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Subgrid\GetTotalRecordCount.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Subgrid\GetSelectedRows.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Subgrid\GetRows.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Subgrid\GetGridCurrentView.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Subgrid\IsViewSelectorVisible.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Subgrid\RemoveGridOnLoad.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Subgrid\GetViewSelector.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Subgrid\GetGrid.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Subgrid\GetGridEntityName.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Subgrid\AddGridOnLoad.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Subgrid\Refresh.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Control\GetVisible.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Control\GetSrc.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Control\GetParent.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Control\GetName.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Control\GetLabel.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Control\GetDisabled.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Control\GetDefaultView.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Control\GetData.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Control\GetControlType.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Control\GetAttribute.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Control\ClearOptions.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Control\AddOption.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Data\GetPrimaryAttributeValue.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Data\Save.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Data\RemoveOnSave.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Data\GetIsDirty.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Data\GetId.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Data\GetEntityName.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Data\GetDataXml.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Data\AddOnSave.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Controls\AddCustomFilter.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Controls\AddCustomView.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Controls\RemovePreSearch.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Controls\AddPreSearch.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Controls\ClearNotification.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Controls\SetNotification.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Controls\GetShowTime.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Controls\SetShowTime.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Controls\SetVisible.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Controls\SetSrc.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Controls\SetLabel.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Controls\SetFocus.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Controls\SetDisabled.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Controls\SetDefaultView.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Controls\GetInitialUrl.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Controls\GetObject.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Controls\SetData.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Controls\RemoveOption.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Controls\AddOnSelection.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Controls\SetSearchQuery.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Controls\GetSelectedResult.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Controls\GetSearchQuery.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Controls\RemoveOnSelection.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Controls\RemoveOnResultOpened.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Controls\AddOnResultOpened.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\ExecObj\PreventDefault.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\ExecObj\IsDefaultPrevented.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\ExecObj\GetSaveMode.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Controls\GetControl.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Controls\SetGridCurrentView.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Grid\GetRowEntityPrimaryAttributeValue.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Grid\GetRowEntityId.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Grid\GetRowEntityReference.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Grid\GetRowEntityName.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Grid\GetRowEntity.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Grid\GetRowData.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Grid\GetTotalRecordCount.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Grid\GetSelectedRows.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Grid\GetRows.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Controls\GetCurrentView.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Grid\IsViewSelectorVisible.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Controls\RemoveGridOnLoad.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Grid\GetViewSelector.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Controls\GetGrid.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Controls\GetEntityName.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Controls\AddGridOnLoad.snippet">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Snippets\JavaScript\Dynamics CRM\Controls\Refresh.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Controls\GetVisible.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Controls\GetSrc.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Controls\GetParent.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Controls\GetName.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Controls\GetLabel.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Controls\GetDisabled.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Controls\GetDefaultView.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Controls\GetData.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Controls\GetControlType.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Controls\GetAttribute.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Controls\ClearOptions.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Controls\AddOption.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Entity\GetPrimaryAttributeValue.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Entity\Save.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Entity\RemoveOnSave.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Entity\GetIsDirty.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Entity\GetId.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Entity\GetEntityName.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Entity\GetDataXml.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Entity\AddOnSave.snippet" />
     <None Include="Snippets\JavaScript\Dynamics CRM\Attribute\SetValue.snippet" />
     <None Include="Snippets\JavaScript\Dynamics CRM\Attribute\AddOnChange.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Form Selector\Navigate.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Form Selector\GetFormLabel.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Form Selector\GetFormId.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Tab\SetTabVisible.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Tab\GetTabVisible.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Tab\SetTabFocus.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Tab\SetTabLabel.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Tab\GetTabLabel.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Tab\GetTabParent.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Tab\GetTabName.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Tab\SetDisplayState.snippet" />
-    <None Include="Snippets\JavaScript\Dynamics CRM\Tab\GetDisplayState.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\FormSelector\Navigate.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\FormSelector\GetFormLabel.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\FormSelector\GetFormId.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Tabs\SetTabVisible.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Tabs\GetTabVisible.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Tabs\SetTabFocus.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Tabs\SetTabLabel.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Tabs\GetTabLabel.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Tabs\GetTabParent.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Tabs\GetTabName.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Tabs\SetDisplayState.snippet" />
+    <None Include="Snippets\JavaScript\Dynamics CRM\Tabs\GetDisplayState.snippet" />
     <None Include="Snippets\JavaScript\Dynamics CRM\UI\ClearFormNotification.snippet" />
     <None Include="Snippets\JavaScript\Dynamics CRM\UI\SetFormNotification.snippet" />
     <None Include="Snippets\JavaScript\Dynamics CRM\UI\RefreshRibbon.snippet" />
@@ -387,6 +456,9 @@
     <TemplateReference Include="CRMSimpleConsole.csproj">
       <PathToProject>../Project%20Templates/CRMSimpleConsole/CRMSimpleConsole.csproj</PathToProject>
     </TemplateReference>
+    <TemplateReference Include="CRMSolutionPackage.csproj">
+      <PathToProject>../Project%20Templates/CRMSolutionPackage/CRMSolutionPackage.csproj</PathToProject>
+    </TemplateReference>
     <TemplateReference Include="CRMTypeScriptProject.csproj">
       <PathToProject>../Project%20Templates/CRMTypeScriptProject/CRMTypeScriptProject.csproj</PathToProject>
     </TemplateReference>
@@ -421,9 +493,13 @@
     </Content>
     <Resource Include="Resources\menu.png" />
     <Resource Include="Resources\sw-file-icon.png" />
-    <Content Include="Resources\icon.ico" />
+    <Content Include="Resources\icon.ico">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
     <Content Include="Resources\Plugin_16.png" />
     <Content Include="Resources\Report_16.png" />
+    <Content Include="Resources\Solution_16.png" />
     <Content Include="Resources\WebResource_16.png" />
     <Content Include="snippets.pkgdef">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -457,6 +533,22 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\CommonResources\CommonResources.csproj">
+      <Project>{4f82019c-685b-4349-ace2-091ad63004b9}</Project>
+      <Name>CommonResources</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\CrmConnectionWindow\CrmConnectionWindow.csproj">
+      <Project>{ccbcccd5-4ade-4b52-b77b-6c453dc30e1d}</Project>
+      <Name>CrmConnectionWindow</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\InfoWindow\InfoWindow.csproj">
+      <Project>{aef6906b-3a68-4614-8790-0d6099b91462}</Project>
+      <Name>InfoWindow</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\OutputLogger\OutputLogger.csproj">
+      <Project>{062e2258-9817-4834-a946-65cb2b57eab3}</Project>
+      <Name>OutputLogger</Name>
+    </ProjectReference>
     <ProjectReference Include="..\PluginDeployer\PluginDeployer.csproj">
       <Project>{910BCD37-04C5-480F-8A22-D7518C42C3BE}</Project>
       <Name>PluginDeployer</Name>
@@ -474,6 +566,12 @@
       <Name>SdkSearch</Name>
       <IncludeOutputGroupsInVSIX>BuiltProjectOutputGroup;BuiltProjectOutputGroupDependencies;GetCopyToOutputDirectoryItems;SatelliteDllsProjectOutputGroup;PkgdefProjectOutputGroup;</IncludeOutputGroupsInVSIX>
       <IncludeOutputGroupsInVSIXLocalOnly>DebugSymbolsProjectOutputGroup;</IncludeOutputGroupsInVSIXLocalOnly>
+    </ProjectReference>
+    <ProjectReference Include="..\SolutionPackager\SolutionPackager.csproj">
+      <Project>{DBDADFC0-2C7D-49CA-B538-5A71BA1BD871}</Project>
+      <Name>SolutionPackager</Name>
+      <IncludeOutputGroupsInVSIX>BuiltProjectOutputGroup%3bBuiltProjectOutputGroupDependencies%3bGetCopyToOutputDirectoryItems%3bSatelliteDllsProjectOutputGroup%3bPkgdefProjectOutputGroup%3b</IncludeOutputGroupsInVSIX>
+      <IncludeOutputGroupsInVSIXLocalOnly>DebugSymbolsProjectOutputGroup%3b</IncludeOutputGroupsInVSIXLocalOnly>
     </ProjectReference>
     <ProjectReference Include="..\TemplateWizards\TemplateWizards.csproj">
       <Project>{4f1d342a-3f47-485c-888f-b85e54a8662b}</Project>

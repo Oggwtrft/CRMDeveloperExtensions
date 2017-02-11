@@ -1,6 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Microsoft.Xrm.Client;
-using Microsoft.Xrm.Client.Services;
+$if$ ($useXrmToolingClientUsing$ == 1)using Microsoft.Xrm.Tooling.Connector;$else$using Microsoft.Xrm.Client;
+using Microsoft.Xrm.Client.Services;$endif$
 using Microsoft.Xrm.Sdk;
 using Moq;
 using System;
@@ -48,8 +48,8 @@ namespace $rootnamespace$
 
             #region Optional Images/Configs
             //Optional Pre/Post Images - pass to InvokePlugin
-            Entity preImage = null; //new Entity { LogicalName = "name", Id = Guid.NewGuid() };
-            Entity postImage = null; //new Entity { LogicalName = "name", Id = Guid.NewGuid() };
+            Entity preImage = null; //new Entity { LogicalName = "name", Id = targetEntity.Id };
+            Entity postImage = null; //new Entity { LogicalName = "name", Id = targetEntity.Id };
 
             //Optional Secure/Unsecure Configurations - pass to InvokePlugin
              string unsecureConfig = String.Empty;
@@ -130,10 +130,9 @@ namespace $rootnamespace$
             if (connectionString.IndexOf("[orgname]", StringComparison.OrdinalIgnoreCase) >= 0)
                 throw new Exception("CRM connection string not set in app.config.");
 
-            CrmConnection connection =
-                CrmConnection.Parse(ConfigurationManager.ConnectionStrings["CRMConnectionString"].ConnectionString);
-            
-            return new OrganizationService(connection);
+            $if$ ($useXrmToolingClientUsing$ == 1)CrmServiceClient crmService = new CrmServiceClient(connectionString);				
+            return crmService.OrganizationWebProxyClient ?? (IOrganizationService)crmService.OrganizationServiceProxy;$else$CrmConnection connection = CrmConnection.Parse(connectionString);               
+            return new OrganizationService(connection);$endif$
         }
     }
 }

@@ -1,7 +1,5 @@
 ﻿using EnvDTE;
 using Microsoft.Crm.Sdk.Messages;
-using Microsoft.Xrm.Client;
-using Microsoft.Xrm.Client.Services;
 using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Query;
 using OutputLogger;
@@ -13,37 +11,39 @@ using System.IO;
 using System.Linq;
 using System.ServiceModel;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using CommonResources;
+using CommonResources.Models;
 using WebResourceDeployer.Models;
+using Microsoft.Xrm.Tooling.Connector;
 
 namespace WebResourceDeployer
 {
     public partial class NewWebResource
     {
-        private static OrganizationService _orgService;
         private readonly CrmConn _connection;
-        private readonly Project _project;
         private readonly Logger _logger;
-
+        private readonly DTE _dte;
         public Guid NewId;
         public int NewType;
         public string NewName;
         public string NewDisplayName;
         public string NewBoundFile;
         public Guid NewSolutionId;
+        private const string WindowType = "WebResourceDeployer";
 
-        public NewWebResource(CrmConn connection, Project project, ObservableCollection<ComboBoxItem> projectFiles)
+        public NewWebResource(CrmConn connection, ObservableCollection<ComboBoxItem> projectFiles, Guid selectedSolutionId, DTE dte)
         {
             InitializeComponent();
 
             _logger = new Logger();
-
+            _dte = dte;
             _connection = connection;
-            _project = project;
 
-            bool result = GetSolutions();
+            bool result = GetSolutions(selectedSolutionId);
 
             if (!result)
             {
@@ -55,22 +55,20 @@ namespace WebResourceDeployer
             Files.ItemsSource = projectFiles;
         }
 
-        private bool GetSolutions()
+        private bool GetSolutions(Guid selectedSolutionId)
         {
             try
             {
                 List<CrmSolution> solutions = new List<CrmSolution>();
 
-                CrmConnection connection = CrmConnection.Parse(_connection.ConnectionString);
-                using (_orgService = new OrganizationService(connection))
+                CrmServiceClient client = SharedConnection.GetCurrentConnection(_connection.ConnectionString, WindowType, _dte);
+                QueryExpression query = new QueryExpression
                 {
-                    QueryExpression query = new QueryExpression
+                    EntityName = "solution",
+                    ColumnSet = new ColumnSet("friendlyname", "solutionid", "uniquename"),
+                    Criteria = new FilterExpression
                     {
-                        EntityName = "solution",
-                        ColumnSet = new ColumnSet("friendlyname", "solutionid", "uniquename"),
-                        Criteria = new FilterExpression
-                        {
-                            Conditions =
+                        Conditions =
                             {
                                 new ConditionExpression
                                 {
@@ -85,8 +83,8 @@ namespace WebResourceDeployer
                                     Values = {true}
                                 }
                             }
-                        },
-                        LinkEntities =
+                    },
+                    LinkEntities =
                         {
                             new LinkEntity
                             {
@@ -98,7 +96,7 @@ namespace WebResourceDeployer
                                 EntityAlias = "publisher"
                             }
                         },
-                        Orders =
+                    Orders =
                         {
                             new OrderExpression
                             {
@@ -106,23 +104,22 @@ namespace WebResourceDeployer
                                 OrderType = OrderType.Ascending
                             }
                         }
+                };
+
+                EntityCollection results = client.RetrieveMultiple(query);
+
+
+                foreach (Entity entity in results.Entities)
+                {
+                    CrmSolution solution = new CrmSolution
+                    {
+                        SolutionId = entity.Id,
+                        Name = entity.GetAttributeValue<string>("friendlyname"),
+                        Prefix = entity.GetAttributeValue<AliasedValue>("publisher.customizationprefix").Value.ToString(),
+                        UniqueName = entity.GetAttributeValue<string>("uniquename")
                     };
 
-                    EntityCollection results = _orgService.RetrieveMultiple(query);
-
-
-                    foreach (Entity entity in results.Entities)
-                    {
-                        CrmSolution solution = new CrmSolution
-                        {
-                            SolutionId = entity.Id,
-                            Name = entity.GetAttributeValue<string>("friendlyname"),
-                            Prefix = entity.GetAttributeValue<AliasedValue>("publisher.customizationprefix").Value.ToString(),
-                            UniqueName = entity.GetAttributeValue<string>("uniquename")
-                        };
-
-                        solutions.Add(solution);
-                    }
+                    solutions.Add(solution);
                 }
 
                 //Default on top
@@ -130,6 +127,13 @@ namespace WebResourceDeployer
                 var item = solutions[i];
                 solutions.RemoveAt(i);
                 solutions.Insert(0, item);
+
+                if (selectedSolutionId != Guid.Empty)
+                {
+                    var sel = solutions.FindIndex(s => s.SolutionId == selectedSolutionId);
+                    if (sel != -1)
+                        Solutions.SelectedIndex = sel;
+                }
 
                 Solutions.ItemsSource = solutions;
 
@@ -153,8 +157,9 @@ namespace WebResourceDeployer
                 string.IsNullOrEmpty(Name.Text) || Type.SelectedItem == null)
                 return;
 
+            ProjectItem projectItem = (ProjectItem)((ComboBoxItem)Files.SelectedItem).Tag;
             string relativePath = ((ComboBoxItem)Files.SelectedItem).Content.ToString();
-            string filePath = Path.GetDirectoryName(_project.FullName) + relativePath.Replace("/", "\\");
+            string filePath = projectItem.Properties.Item("FullPath").Value.ToString();
             if (!File.Exists(filePath))
             {
                 _logger.WriteToOutputWindow("Missing File: " + filePath, Logger.MessageType.Error);
@@ -166,6 +171,11 @@ namespace WebResourceDeployer
             int type = Convert.ToInt32(((ComboBoxItem)Type.SelectedItem).Tag.ToString());
             string prefix = Prefix.Text;
             string name = Name.Text;
+
+            bool isNameValid = ValidateName();
+            if (!isNameValid)
+                return;
+
             string displayName = DisplayName.Text;
 
             LockOverlay.Visibility = Visibility.Visible;
@@ -188,71 +198,67 @@ namespace WebResourceDeployer
         {
             try
             {
-                CrmConnection connection = CrmConnection.Parse(_connection.ConnectionString);
+                CrmServiceClient client = SharedConnection.GetCurrentConnection(_connection.ConnectionString, WindowType, _dte);
+                Entity webResource = new Entity("webresource");
+                webResource["name"] = prefix + name;
+                webResource["webresourcetype"] = new OptionSetValue(type);
+                if (!string.IsNullOrEmpty(displayName))
+                    webResource["displayname"] = displayName;
 
-                using (_orgService = new OrganizationService(connection))
+                if (type == 8)
+                    webResource["silverlightversion"] = "4.0";
+
+                string extension = Path.GetExtension(filePath);
+
+                List<string> imageExs = new List<string>() { ".ICO", ".PNG", ".GIF", ".JPG" };
+                string content;
+                //TypeScript
+                if (extension != null && (extension.ToUpper() == ".TS"))
                 {
-                    Entity webResource = new Entity("webresource");
-                    webResource["name"] = prefix + name;
-                    webResource["webresourcetype"] = new OptionSetValue(type);
-                    if (!string.IsNullOrEmpty(displayName))
-                        webResource["displayname"] = displayName;
-
-                    if (type == 8)
-                        webResource["silverlightversion"] = "4.0";
-
-                    string extension = Path.GetExtension(filePath);
-
-                    List<string> imageExs = new List<string>() { ".ICO", ".PNG", ".GIF", ".JPG" };
-                    string content;
-                    //TypeScript
-                    if (extension != null && (extension.ToUpper() == ".TS"))
-                    {
-                        content = File.ReadAllText(Path.ChangeExtension(filePath, ".js"));
-                        webResource["content"] = EncodeString(content);
-                    }
-                    //Images
-                    else if (extension != null && imageExs.Any(s => extension.ToUpper().EndsWith(s)))
-                    {
-                        content = EncodedImage(filePath, extension);
-                        webResource["content"] = content;
-                    }
-                    //Everything else
-                    else
-                    {
-                        content = File.ReadAllText(filePath);
-                        webResource["content"] = EncodeString(content);
-                    }
-
-                    Guid id = _orgService.Create(webResource);
-
-                    _logger.WriteToOutputWindow("New Web Resource Created: " + id, Logger.MessageType.Info);
-
-                    //Add to the choosen solution (not default)
-                    if (solutionId != new Guid("FD140AAF-4DF4-11DD-BD17-0019B9312238"))
-                    {
-                        AddSolutionComponentRequest scRequest = new AddSolutionComponentRequest
-                        {
-                            ComponentType = 61,
-                            SolutionUniqueName = uniqueName,
-                            ComponentId = id
-                        };
-                        AddSolutionComponentResponse response =
-                            (AddSolutionComponentResponse)_orgService.Execute(scRequest);
-
-                        _logger.WriteToOutputWindow("New Web Resource Added To Solution: " + response.id, Logger.MessageType.Info);
-                    }
-
-                    NewId = id;
-                    NewType = type;
-                    NewName = prefix + name;
-                    if (!string.IsNullOrEmpty(displayName))
-                        NewDisplayName = displayName;
-                    NewBoundFile = relativePath;
-                    NewSolutionId = solutionId;
-
-                    return true;
+                    content = File.ReadAllText(Path.ChangeExtension(filePath, ".js"));
+                    webResource["content"] = EncodeString(content);
                 }
+                //Images
+                else if (extension != null && imageExs.Any(s => extension.ToUpper().EndsWith(s)))
+                {
+                    content = EncodedImage(filePath, extension);
+                    webResource["content"] = content;
+                }
+                //Everything else
+                else
+                {
+                    content = File.ReadAllText(filePath);
+                    webResource["content"] = EncodeString(content);
+                }
+
+                Guid id = client.Create(webResource);
+
+                _logger.WriteToOutputWindow("New Web Resource Created: " + id, Logger.MessageType.Info);
+
+                //Add to the choosen solution (not default)
+                if (solutionId != new Guid("FD140AAF-4DF4-11DD-BD17-0019B9312238"))
+                {
+                    AddSolutionComponentRequest scRequest = new AddSolutionComponentRequest
+                    {
+                        ComponentType = 61,
+                        SolutionUniqueName = uniqueName,
+                        ComponentId = id
+                    };
+                    AddSolutionComponentResponse response =
+                        (AddSolutionComponentResponse)client.Execute(scRequest);
+
+                    _logger.WriteToOutputWindow("New Web Resource Added To Solution: " + response.id, Logger.MessageType.Info);
+                }
+
+                NewId = id;
+                NewType = type;
+                NewName = prefix + name;
+                if (!string.IsNullOrEmpty(displayName))
+                    NewDisplayName = displayName;
+                NewBoundFile = relativePath;
+                NewSolutionId = solutionId;
+
+                return true;
             }
             catch (FaultException<OrganizationServiceFault> crmEx)
             {
@@ -366,7 +372,7 @@ namespace WebResourceDeployer
                 else
                 {
                     DisplayName.Text = DisplayName.Text.Substring(0, DisplayName.Text.Length - 3) + ".js";
-                    Name.Text = fileName.Substring(0, fileName.Length - 3) + ".js"; ;
+                    Name.Text = fileName.Substring(0, fileName.Length - 3) + ".js";
                 }
 
                 if (string.IsNullOrEmpty(ex))
@@ -433,6 +439,32 @@ namespace WebResourceDeployer
         private string EncodeString(string value)
         {
             return Convert.ToBase64String(Encoding.UTF8.GetBytes(value));
+        }
+
+        private bool ValidateName()
+        {
+            string error =
+                "Web resource names may only include letters, numbers, periods, and nonconsecutive forward slash characters.";
+
+            if (string.IsNullOrEmpty(Name.Text))
+                return true;
+
+            string name = Name.Text.Trim();
+
+            Regex r = new Regex("^[a-zA-Z0-9_.\\/]*$");
+            if (!r.IsMatch(name))
+            {
+                MessageBox.Show(error);
+                return false;
+            }
+
+            if (name.Contains("//"))
+            {
+                MessageBox.Show(error);
+                return false;
+            }
+
+            return true;
         }
     }
 }

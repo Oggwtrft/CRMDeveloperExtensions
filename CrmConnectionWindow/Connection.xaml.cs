@@ -1,12 +1,14 @@
-﻿using Microsoft.Crm.Sdk.Messages;
-using Microsoft.Xrm.Client;
-using Microsoft.Xrm.Client.Services;
+﻿using EnvDTE;
+using Microsoft.Crm.Sdk.Messages;
 using Microsoft.Xrm.Sdk;
+using Microsoft.Xrm.Tooling.Connector;
 using OutputLogger;
 using System;
 using System.ServiceModel;
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media;
 
 namespace CrmConnectionWindow
@@ -14,39 +16,59 @@ namespace CrmConnectionWindow
     public partial class Connection
     {
         private readonly Logger _logger;
-
+        private readonly DTE _dte;
+        private readonly string _windowType;
         public string ConnectionName { get; set; }
         public string ConnectionString { get; set; }
         public string OrgId { get; set; }
         public string Version { get; set; }
 
-        public Connection(string name, string connectionString)
+        public Connection(string name, string connectionString, string windowType, DTE dte)
         {
             InitializeComponent();
 
             _logger = new Logger();
+            _dte = dte;
+            _windowType = windowType;
 
             if (!string.IsNullOrEmpty(name))
             {
                 Name.Text = name;
+                Name.IsEnabled = false;
                 Url.IsEnabled = false;
-                ConnectionType.Visibility = Visibility.Hidden;
+                ConnectionType.IsEnabled = false;
             }
 
             if (!string.IsNullOrEmpty(connectionString))
             {
                 ConnectionString = connectionString;
-
                 ParseConnection(connectionString);
-
                 SetConnectionString();
+
+                return;
             }
 
-            ConnectionType.SelectedIndex = 0;
+            if (string.IsNullOrEmpty(connectionString))
+                ConnectionType.SelectedIndex = 0;
         }
 
         private void ParseConnection(string connectionString)
         {
+            if (connectionString.ToUpper().Contains("AUTHTYPE=OAUTH"))
+                ConnectionType.SelectedIndex = 4; //OAuth
+            else if (connectionString.ToUpper().Contains("AUTHTYPE=OFFICE365"))
+                ConnectionType.SelectedIndex = 0; //Online
+            else if (connectionString.ToUpper().Contains("AUTHTYPE=IFD"))
+                ConnectionType.SelectedIndex = 3; //IFD 
+            else //AUTHTYPE=AD"
+            {
+                if (connectionString.ToUpper().Contains("USERNAME"))
+                    ConnectionType.SelectedIndex = 1; //Credentials
+                else
+                    ConnectionType.SelectedIndex = 2; //Windows
+            }
+
+
             string[] parts = connectionString.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
             foreach (string part in parts)
             {
@@ -58,8 +80,20 @@ namespace CrmConnectionWindow
                 if (s[0] == "Username")
                     Username.Text = s[1];
                 if (s[0] == "Password")
-                    Password.Password = s[1];
+                {
+                    string password = s[1];
+                    if (password.StartsWith("'"))
+                        password = password.Substring(1, password.Length - 1);
+                    if (password.EndsWith("'"))
+                        password = password.Substring(0, password.Length - 1);
+
+                    Password.Password = password;
+                }
+                if (s[0] == "AppId")
+                    AppId.Text = s[1];
             }
+
+            SetFormProperties(false);
         }
 
         private async void Connect_Click(object sender, RoutedEventArgs e)
@@ -79,6 +113,12 @@ namespace CrmConnectionWindow
             ComboBoxItem item = (ComboBoxItem)ConnectionType.SelectedItem;
             if (item == null) return;
 
+            if (Domain.IsEnabled && string.IsNullOrEmpty(Domain.Text))
+            {
+                MessageBox.Show("Enter The Domain");
+                return;
+            }
+
             if (item.Content.ToString() != "On-premises using Windows integrated security")
             {
                 if (string.IsNullOrEmpty(Username.Text) || string.IsNullOrEmpty(Password.Password))
@@ -88,34 +128,20 @@ namespace CrmConnectionWindow
                 }
             }
 
-            string value = "Url=" + Url.Text.Trim() + ";";
-            switch (item.Content.ToString())
+            if (item.Content.ToString() == "OAuth")
             {
-                case "Online using Office 365":
-                    value += "Username=" + Username.Text.Trim() + ";";
-                    value += "Password=" + Password.Password.Trim() + ";";
-                    break;
-                case "On-premises with provided user credentials":
-                    if (!string.IsNullOrEmpty(Domain.Text))
-                        value += "Domain=" + Domain.Text.Trim() + ";";
-                    value += "Username=" + Username.Text.Trim() + ";";
-                    value += "Password=" + Password.Password.Trim() + ";";
-                    break;
-                case "On-premises using Windows integrated security":
-                    break;
-                case "On-premises (IFD) with claims":
-                    if (!string.IsNullOrEmpty(Domain.Text))
-                        value += "Domain=" + Domain.Text.Trim() + ";";
-                    value += "Username=" + Username.Text.Trim() + ";";
-                    value += "Password=" + Password.Password.Trim() + ";";
-                    break;
+                if (string.IsNullOrEmpty(AppId.Text))
+                {
+                    MessageBox.Show("Enter The AppId");
+                    return;
+                }
             }
 
-            ConnectionString = value;
+            ConnectionString = CreateConnectionString(item);
 
             LockOverlay.Visibility = Visibility.Visible;
 
-            RetrieveVersionResponse vResponse = await System.Threading.Tasks.Task.Run(() => ConnectToCrm(ConnectionString));
+            string vResponse = await System.Threading.Tasks.Task.Run(() => ConnectToCrm(ConnectionString));
 
             LockOverlay.Visibility = Visibility.Hidden;
 
@@ -125,32 +151,71 @@ namespace CrmConnectionWindow
                 return;
             }
 
-            Version = vResponse.Version;
+            Version = vResponse;
             ConnectionName = Name.Text;
 
             DialogResult = true;
             Close();
         }
 
-        private RetrieveVersionResponse ConnectToCrm(string connectionString)
+        private string CreateConnectionString(ComboBoxItem item)
+        {
+            var sb = new StringBuilder();
+
+            sb.AppendFormat("Url={0};", Url.Text.Trim());
+
+            switch (item.Content.ToString())
+            {
+                case "Online using Office 365":
+                    sb.AppendFormat("Username={0};Password='{1}';", Username.Text.Trim(), Password.Password.Trim().Replace("'", "''"));
+                    sb.Append("AuthType=Office365;");
+                    break;
+                case "On-premises (IFD) with claims":
+                    sb.AppendFormat("Domain={0};", Domain.Text.Trim());
+                    sb.AppendFormat("Username={0};Password='{1}';", Username.Text.Trim(), Password.Password.Trim().Replace("'", "''"));
+                    sb.Append("AuthType=IFD;");
+                    break;
+                case "On-premises with provided user credentials":
+                    sb.AppendFormat("Domain={0};", Domain.Text.Trim());
+                    sb.AppendFormat("Username={0};Password={1};", Username.Text.Trim(), Password.Password.Trim().Replace("'", "''"));
+                    sb.Append("AuthType=AD;");
+                    break;
+                case "On-premises using Windows integrated security":
+                    sb.Append("AuthType=AD;");
+                    break;
+                case "OAuth":
+                    sb.AppendFormat("Username={0};Password='{1}';", Username.Text.Trim(), Password.Password.Trim().Replace("'", "''"));
+                    sb.AppendFormat("AppId={0};", AppId.Text.Trim());
+                    sb.Append("LoginPrompt=Never;");
+                    sb.Append("AuthType=OAuth;");
+                    break;
+            }
+
+            sb.Append("RequireNewInstance=true;");
+            return sb.ToString();
+        }
+
+        private string ConnectToCrm(string connectionString)
         {
             try
             {
-                CrmConnection connection = CrmConnection.Parse(connectionString);
-                using (OrganizationService orgService = new OrganizationService(connection))
-                {
-                    WhoAmIRequest wRequest = new WhoAmIRequest();
-                    WhoAmIResponse wResponse = (WhoAmIResponse)orgService.Execute(wRequest);
-                    _logger.WriteToOutputWindow("Connected To CRM Organization: " + wResponse.OrganizationId, Logger.MessageType.Info);
+                CrmServiceClient client = new CrmServiceClient(connectionString);
 
-                    OrgId = wResponse.OrganizationId.ToString();
+                WhoAmIRequest wRequest = new WhoAmIRequest();
+                WhoAmIResponse wResponse = (WhoAmIResponse)client.Execute(wRequest);
+                _logger.WriteToOutputWindow("Connected To CRM Organization: " + wResponse.OrganizationId, Logger.MessageType.Info);
+                _logger.WriteToOutputWindow("Version: " + client.ConnectedOrgVersion, Logger.MessageType.Info);
 
-                    RetrieveVersionRequest vRequest = new RetrieveVersionRequest();
-                    RetrieveVersionResponse vResponse = (RetrieveVersionResponse)orgService.Execute(vRequest);
-                    _logger.WriteToOutputWindow("Version: " + vResponse.Version, Logger.MessageType.Info);
+                OrgId = wResponse.OrganizationId.ToString();
 
-                    return vResponse;
-                }
+                Globals globals = _dte.Globals;
+                globals["CurrentConnection" + _windowType] = client;
+
+                if (client.ConnectedOrgVersion != null)
+                    return client.ConnectedOrgVersion.ToString();
+
+                _logger.WriteToOutputWindow("Error Connecting To CRM: Unable to determine org. version", Logger.MessageType.Error);
+                return null;
             }
             catch (FaultException<OrganizationServiceFault> crmEx)
             {
@@ -166,49 +231,105 @@ namespace CrmConnectionWindow
 
         private void ConnectionType_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            SetFormProperties(true);
+        }
+
+        private void SetFormProperties(bool setDefaults)
+        {
             ComboBoxItem item = (ComboBoxItem)ConnectionType.SelectedItem;
             if (item == null) return;
 
             switch (item.Content.ToString())
             {
                 case "Online using Office 365":
-                    Url.Text = "https://orgname.crm.dynamics.com";
+                    if (setDefaults)
+                    {
+                        Url.Text = "https://orgname.crm.dynamics.com";
+                        Username.Text = "administrator@orgname.onmicrosoft.com";
+                        Password.Password = "********";
+                        Domain.Text = null;
+                        AppId.Text = null;
+                    }
                     UsernameLabel.Foreground = Brushes.Red;
                     PasswordLabel.Foreground = Brushes.Red;
+                    DomainLabel.Foreground = Brushes.Black;
                     Domain.IsEnabled = false;
-                    Domain.Text = null;
                     Username.IsEnabled = true;
                     Password.IsEnabled = true;
+                    AppId.IsEnabled = false;
+                    AppIdLabel.Foreground = Brushes.Black;
                     break;
                 case "On-premises with provided user credentials":
-                    Url.Text = "http://servername/orgname";
-                    DomainLabel.Foreground = Brushes.Black;
+                    if (setDefaults)
+                    {
+                        Url.Text = "http://servername/orgname";
+                        Username.Text = "username";
+                        Password.Password = "********";
+                        Domain.Text = "domain";
+                        AppId.Text = null;
+                    }
+                    DomainLabel.Foreground = Brushes.Red;
                     UsernameLabel.Foreground = Brushes.Red;
                     PasswordLabel.Foreground = Brushes.Red;
                     Domain.IsEnabled = true;
                     Username.IsEnabled = true;
                     Password.IsEnabled = true;
+                    AppId.IsEnabled = false;
+                    AppIdLabel.Foreground = Brushes.Black;
                     break;
                 case "On-premises using Windows integrated security":
-                    Url.Text = "http://servername/orgname";
+                    if (setDefaults)
+                    {
+                        Url.Text = "http://servername/orgname";
+                        Username.Text = null;
+                        Password.Password = null;
+                        Domain.Text = null;
+                        AppId.Text = null;
+                    }
                     DomainLabel.Foreground = Brushes.Black;
                     UsernameLabel.Foreground = Brushes.Black;
                     PasswordLabel.Foreground = Brushes.Black;
                     Domain.IsEnabled = false;
-                    Domain.Text = null;
                     Username.IsEnabled = false;
-                    Username.Text = null;
                     Password.IsEnabled = false;
-                    Password.Password = null;
+                    AppId.IsEnabled = false;
+                    AppIdLabel.Foreground = Brushes.Black;
                     break;
                 case "On-premises (IFD) with claims":
-                    Url.Text = "https://orgname.domain.com";
-                    DomainLabel.Foreground = Brushes.Black;
+                    if (setDefaults)
+                    {
+                        Url.Text = "https://host.domain.com/orgname";
+                        Username.Text = "domain\\username";
+                        Password.Password = "********";
+                        Domain.Text = "domain";
+                        AppId.Text = null;
+                    }
+                    DomainLabel.Foreground = Brushes.Red;
                     UsernameLabel.Foreground = Brushes.Red;
                     PasswordLabel.Foreground = Brushes.Red;
                     Domain.IsEnabled = true;
                     Username.IsEnabled = true;
                     Password.IsEnabled = true;
+                    AppId.IsEnabled = false;
+                    AppIdLabel.Foreground = Brushes.Black;
+                    break;
+                case "OAuth":
+                    if (setDefaults)
+                    {
+                        Url.Text = "https://orgname.crm.dynamics.com";
+                        Username.Text = "administrator@orgname.onmicrosoft.com";
+                        Password.Password = "********";
+                        Domain.Text = null;
+                        AppId.Text = "00000000-0000-0000-0000-000000000000";
+                    }
+                    UsernameLabel.Foreground = Brushes.Red;
+                    PasswordLabel.Foreground = Brushes.Red;
+                    DomainLabel.Foreground = Brushes.Black;
+                    Domain.IsEnabled = false;
+                    Username.IsEnabled = true;
+                    Password.IsEnabled = true;
+                    AppId.IsEnabled = true;
+                    AppIdLabel.Foreground = Brushes.Red;
                     break;
             }
 
@@ -227,23 +348,33 @@ namespace CrmConnectionWindow
                 case "Online using Office 365":
                     value += "Username=" + Username.Text.Trim() + ";";
                     value += "Password=" + new String('*', Password.Password.Trim().Length) + ";";
+                    value += "AuthType=Office365;";
                     break;
                 case "On-premises with provided user credentials":
-                    if (!string.IsNullOrEmpty(Domain.Text))
-                        value += "Domain=" + Domain.Text.Trim() + ";";
+                    value += "Domain=" + Domain.Text.Trim() + ";";
                     value += "Username=" + Username.Text.Trim() + ";";
                     value += "Password=" + new String('*', Password.Password.Trim().Length) + ";";
+                    value += "AuthType=AD;";
                     break;
                 case "On-premises using Windows integrated security":
+                    value += "AuthType=AD;";
                     break;
                 case "On-premises (IFD) with claims":
-                    if (!string.IsNullOrEmpty(Domain.Text))
-                        value += "Domain=" + Domain.Text.Trim() + ";";
+                    value += "Domain=" + Domain.Text.Trim() + ";";
                     value += "Username=" + Username.Text.Trim() + ";";
                     value += "Password=" + new String('*', Password.Password.Trim().Length) + ";";
+                    value += "AuthType=IFD;";
+                    break;
+                case "OAuth":
+                    value += "Username=" + Username.Text.Trim() + ";";
+                    value += "Password=" + new String('*', Password.Password.Trim().Length) + ";";
+                    value += "AppId=" + AppId.Text.Trim() + ";";
+                    value += "LoginPrompt=Never;";
+                    value += "AuthType=OAuth;";
                     break;
             }
 
+            value += "RequireNewInstance=true;";
             ConnString.Text = value;
         }
 
@@ -265,6 +396,24 @@ namespace CrmConnectionWindow
         private void Password_PasswordChanged(object sender, RoutedEventArgs e)
         {
             SetConnectionString();
+        }
+
+        private void AppId_OnTextChanged(object sender, TextChangedEventArgs e)
+        {
+            SetConnectionString();
+        }
+
+        private void Textbox_OnGotKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
+        {
+            if (sender is TextBox)
+            {
+                ((TextBox)sender).SelectAll();
+                return;
+            }
+            if (sender is PasswordBox)
+            {
+                ((PasswordBox)sender).SelectAll();
+            }
         }
     }
 }
